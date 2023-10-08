@@ -30,9 +30,9 @@ The LLM doesn't really have to decide to run the Python code, it just has to wri
     - Finish, which is the conclusion the model reaches
   - Observations are the new information gained from the external search and brought into the context.
 
-<img src="image/image013.png" width="500"/>
+<img src="image/image013.jpg" width="500"/>
 
-## Model architectures and pre-training objectives
+## Model Architectures and Pre-training Objectives
 
 <img src="image/image031.png" width="650"/>
 
@@ -56,3 +56,40 @@ The LLM doesn't really have to decide to run the Python code, it just has to wri
 - Use sequence-to-sequence models for translation, summarization, and question-answering. They are useful when you have a body of texts as both input and output.
 
 <img src="image/image043.png" width="500"/>
+
+## GPU Memory Limit
+
+
+1B parameters takes about 4GB (32-bit full precision) GPU RAM. However to train a model with 1B parameters, need about 20 times the amount of GPU RAM that the model weights alone take up, i.e. 4 x 20 = 80GB.
+
+#### Quantization: INT8
+
+<img src="image/image008.png" width="600"/>
+
+#### Quantization: FP16
+
+<img src="image/image042.png" width="600"/>
+
+#### Quantization: BFLOAT16
+
+<img src="image/image004.png" width="600"/>
+
+## Data Parallelism vs Model Sharding
+
+(May be similar to https://leimao.github.io/blog/Data-Parallelism-vs-Model-Paralelism/)
+
+### Distributed Data Parallel (DDP)
+
+DDP requires that the model weights, and additional parameters, gradients, and optimizer states to be fit onto a single GPU. If they are too large, should use model sharding.
+
+<img src="image/image007.png" width="600"/>
+
+### Model Sharding
+
+#### Zero Redundancy Optimizer (ZeRO)
+
+- Reduces memory by distributing (sharding) the model parameters, gradients, and optimizer states across GPUs.
+- There are 3 stages of ZeRO, each requires less memory.
+
+<img src="image/image046.png" width="650"/>
+
