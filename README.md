@@ -18,7 +18,7 @@ The LLM doesn't really have to decide to run the Python code, it just has to wri
 
 <img src="image/image016.png" width="600"/>
 
-#### ReAct framework
+#### ReAct Framework
 
 - There is an API to query external data.
 - The structure of the prompt: (1) Instructions, (2) ReAct example, (3) Question you want to ask.
@@ -64,15 +64,15 @@ The LLM doesn't really have to decide to run the Python code, it just has to wri
 
 #### Quantization: INT8
 
-<img src="image/image008.png" width="600"/>
+<img src="image/image008.png" width="550"/>
 
 #### Quantization: FP16
 
-<img src="image/image042.png" width="600"/>
+<img src="image/image042.png" width="550"/>
 
 #### Quantization: BFLOAT16
 
-<img src="image/image004.png" width="600"/>
+<img src="image/image004.png" width="550"/>
 
 ## Data Parallelism vs Model Sharding
 
@@ -129,7 +129,7 @@ DDP requires that the model weights, and additional parameters, gradients, and o
 Benefits of PEFT
 - Avoid catastrophic forgetting
 - Only need to train small number of weights compared to the original LLM
-- Only need to store different versions of PEFT weights (instead of different versions of LLM) for each new task
+- Only need to store different versions of PEFT weights at the size of MBs (instead of different versions of LLM at the size of GBs) for each task (e.g. QA, summarizing, completing...)
 
 ### Low-Rank Adaptation of Large Language Models (LoRA)
 
@@ -142,3 +142,81 @@ The optimum rank is in a range of 4 to 32.
 Applying LoRA to just the self-attention layers is enough to fine-tune for a task and achieve performance gains. Can also use LoRA on other components like the feed-forward layers.
 
 <img src="image/image028.png" width="500"/>
+
+<img src="image/image029.png" width="500"/>
+
+### Prompt Tuning with Trainable Soft Prompts
+
+- A set of trainable tokens that are added to a prompt and whose values are updated during additional training to improve performance on specific tasks.
+- Switch out Soft Prompt at inference time to change task.
+- When the original LLM is large enough, Prompt Tuning can be as effective as full Fine-tuning.
+
+<img src="image/image032.png" width="600"/>
+
+## LLM Evaluation Metrics
+
+<img src="image/image020.png" width="400"/>
+
+<img src="image/image019.png" width="500"/>
+
+<img src="image/image021.png" width="500"/>
+
+<img src="image/image022.png" width="500"/>
+
+A few examples Rouge-1 scores would fail:
+
+- All words are present, but in a wrong order. Partially mitigated by Rouge-n
+- “It is cold outside” and “It is not cold outside” are similar. Partially mitigated by Rouge-n
+- “It is cold outside” and “Cold cold cold cold” would result in a Rouge-1 precision of 1.0. Mitigated by a clipping function that limits the number of unigram matches to the max count for that unigram within the reference sentence.
+ 
+Can only use Rouge scores to compare the capabilities of models if the scores were determined for the same task. For example, summarization. Rouge scores for different tasks are not comparable to one another.
+
+<img src="image/image023.png" width="400"/>
+
+## Reinforcement Learning from Human Feedback (RLHF)
+
+<img src="image/image033.png" width="500"/>
+
+The LLM weights are updated iteratively to maximize the Reward, enabling the model to generate non-toxic completions.
+
+Use an additional model, known as the Reward Model, to classify the outputs of the LLM and evaluate the degree of alignment with human preferences. Specifically, start with a smaller number of human evaluated reward (pairwise comparison data) to train the Reward Model by traditional supervised learning methods (e.g. BERT). Once trained, use the Reward Model to assign a reward value (to the output of the LLM) which is used to update the weights off the LLM.
+
+<img src="image/image035.png" width="450"/>
+
+### Prepare labeled data for training
+
+Convert rankings into pairwise training data for the reward model. While thumbs-up thumbs-down feedback is often easier to gather than ranking feedback, ranked feedback can generate more training data, i.e. three prompt completion pairs from each human ranking.
+
+<img src="image/image034.png" width="600"/>
+
+### Proximal policy optimization (PPO)
+
+- Reinforcement learning algorithm takes the output of the Reward Model and uses it to update the LLM model weights so that the reward score increases over time.
+- Phase 1: use LLM to complete the given prompts
+- Phase 2: update LLM against the Reward Model
+- The PPO objective updates the model weights through back propagation over several steps. Once the model weights are updated, PPO starts a new cycle. For the next iteration, the LLM is replaced with the updated LLM, and a new PPO cycle starts. After many iterations, the human-aligned LLM is obtained.
+
+<img src="image/image041.png" width="400"/>
+
+#### Value Function and Value Loss
+
+- The expected reward of a completion is estimated through a separate head of the LLM called the value function.
+- The value function estimates the expected total reward for a given State S. In other words, as the LLM generates each token of a completion, estimate the total future reward based on the current sequence of tokens.
+- The goal is to minimize the value loss that is the difference between the actual future total reward (e.g. 1.87), and its approximation to the value function (e.g. 1.23). The value loss makes estimates for future rewards more accurate.
+- The value function is then used in Advantage Estimation in Phase 2.
+
+<img src="image/image036.png" width="350"/>
+
+#### Policy Loss
+
+- π(a_t | S_t) is the probability of the next token a_t given the current prompt S_t.
+- π is the model’s probability distribution over tokens.
+- The action a_t is the next token, and the state S_t is the completed prompt up to the token t.
+- A-hat_t is the estimated advantage term of a given choice of action.
+  - The advantage term estimates how much better or worse the current action (current token A_t) is compared to all possible actions (all the possible tokens) at that state.
+  - We look at the expected future rewards of a completion following the new token, and we estimate how advantageous this completion is compared to the rest.
+  - There is a recursive formula to estimate this quantity based on the value function.
+  - A positive advantage means that the suggested token is better than the average. Therefore, increasing the probability of the current token seems like a good strategy that leads to higher rewards.
+- The advantage estimates are valid only when the old and new policies are close to each other. These extra errors terms are guardrails defining a trust region in proximity to the LLM.
+
+<img src="image/image037.png" width="650"/>
