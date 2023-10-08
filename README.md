@@ -93,3 +93,52 @@ DDP requires that the model weights, and additional parameters, gradients, and o
 
 <img src="image/image046.png" width="650"/>
 
+#### Fully Sharded Data Parallel (FSDP)
+
+- FSDP allows models that are too big to fit on a single chip.
+- When using FSDP, distribute the data across multiple GPUs, but shard the model parameters, gradients, and optimizer states across the GPU nodes using one of the 3 ZeRO strategies.
+- FSDP requires collecting model states (required for processing each batch) from all of the GPUs before the forward and backward pass. Each GPU requests data from the other GPUs on-demand, to materialize the sharded data into unsharded data for the duration of the operation. After the operation, release the unsharded non-local data back to the other GPUs as original sharded data. Can also choose to keep it for future operations, for example during backward pass, but this requires more GPU RAM again (a typical performance vs memory trade-off).
+- In the final step after the backward pass, FSDP synchronizes the gradients across the GPUs in the same way they were for DDP.
+
+<img src="image/image014.png" width="650"/>
+
+<br>
+
+<img src="image/image010.png" width="550"/>
+
+- For a 70 billion parameter model, the ideal training dataset contains 1.4 trillion tokens (20 times the number of parameters).
+- A compute optimal Chinchilla model outperforms non compute optimal models such as GPT-3 on a large range of downstream evaluation tasks.
+
+<img src="image/image011.png" width="400"/>
+
+## Fine-tuning (Instruction Fine-tuning)
+
+- For LLM, fine-tuning means instruction fine tuning. Often, only 500-1000 examples are needed to fine-tune a single task.
+- However, a fine-tuned model may forget how to do other tasks, called Catastrophic Forgetting. To deal with Catastrophic Forgetting, can either
+  1. Ignore the problem because the use cases are limited
+  2. Fine-tune on multiple tasks at the same time (may need 50,000 to 100,000 examples in the training set)
+  3. Consider Parameter Efficient Fine-tuning (PEFT).
+- A sample prompt training dataset (e.g. SAMsum) can be used to fine-tune (e.g. generate the FLAN-T5 from the pretrained T5. Here is a template for fine-tuning:
+
+    <img src="image/image018.jpg" width="500"/>
+
+## Parameter Efficient Fine-Tuning (PEFT)
+
+<img src="image/image025.png" width="500"/>
+
+Benefits of PEFT
+- Avoid catastrophic forgetting
+- Only need to train small number of weights compared to the original LLM
+- Only need to store different versions of PEFT weights (instead of different versions of LLM) for each new task
+
+### Low-Rank Adaptation of Large Language Models (LoRA)
+
+The optimum rank is in a range of 4 to 32.
+
+<img src="image/image026.png" width="600"/>
+
+<img src="image/image027.png" width="600"/>
+
+Applying LoRA to just the self-attention layers is enough to fine-tune for a task and achieve performance gains. Can also use LoRA on other components like the feed-forward layers.
+
+<img src="image/image028.png" width="500"/>
