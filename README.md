@@ -220,3 +220,23 @@ Convert rankings into pairwise training data for the reward model. While thumbs-
 - The advantage estimates are valid only when the old and new policies are close to each other. These extra errors terms are guardrails defining a trust region in proximity to the LLM.
 
 <img src="image/image037.png" width="650"/>
+
+<img src="image/image044.png" width="650"/>
+
+#### Entropy Loss
+
+While the policy loss moves the model towards alignment goal, entropy allows the model to maintain creativity. If you kept the entropy low, the model may always complete the prompt in the same way.
+
+### Reward Hacking
+
+- Reward hacking is when the agent learns to cheat the system by favoring actions that maximize the reward received even if those actions don't align well with the original objective.
+- In the context of LLMs, reward hacking can manifest as the addition of words or phrases to completions that result in high scores for the metric being aligned, but that reduce the overall quality of the language.
+- For example, the completion “… is the most awesome, most incredible thing ever” is certainly non-toxic, but it is not useful.
+- During training, each prompt is passed to both the reference LLM and the RL updated LLM.
+- KL divergence is a statistical measure of how different two probability distributions are.
+- Added KL divergence to the reward calculation, which penalizes the RL updated LLM if it shifts too far from the reference LLM (generating completions that are too different).
+- Can use PEFT, which reuses the same underlying LLM for both the reference LLM and the RL updated LLM. The benefit is the reduced memory footprint.
+
+<img src="image/image038.png" width="550"/>
+
+<img src="image/image045.png" width="600"/>
