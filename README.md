@@ -192,6 +192,13 @@ Can only use Rouge scores to compare the capabilities of models if the scores we
 
 ## Reinforcement Learning from Human Feedback (RLHF)
 
+- The Reward Model is a regression model that indicates how good the sentence completion is, given a pair of (prompt, completion).
+- The Reward Model is trained on triplets of (prompt, better completion, worse completion).
+- The Policy is the LLM to be tuned.
+- The State is prompt + tokens generated up until this point.
+- The Action is generating tokens.
+- Each time the LLM outputs a completion, its receives a Reward from the Reward model. The LLM weights are then updated via Proximal Policy Optimization.
+
 <img src="image/image033.png" width="500"/>
 
 The LLM weights are updated iteratively to maximize the Reward, enabling the model to generate non-toxic completions.
