@@ -279,3 +279,17 @@ While the policy loss moves the model towards alignment goal, entropy allows the
   3. With the Reward Model, can now fine-tune the fine-tuned model further using a reinforcement learning algorithm like PPO.
 
 <img src="image/image040.png" width="550"/>
+
+<br>
+
+## Retrieval-Augmented Generation
+
+- An evaluation library would have a feedback function that provides a score after viewing an LLM app's inputs, outputs, and intermediate results.
+- Sentence-window retrieval
+	- Increase the window size may improve context relevance and therefore indirectly improve groundedness. Because when the retrieval step does not produce enough relevant context, the LLM in the completion step will tend to fill in those gaps by its pre-existing knowledge.
+	- But when the window size is too large, even if the context relevance is high, there could be a drop in the groundedness because the LLM can get overwhelmed with contexts that are too large and fall back on its pre-existing knowledge.
+- Auto-merging retrieval
+	- Auto-merging retrieval (1) Define a hierarchy of smaller chunks linking to bigger parent chunks. (2) During retrieval, if the set of smaller chunks linking to a parent chunk exceeds a threshold, then we retrieve the parent chunk instead to help ensure more coherent context. Otherwise, the ordering of small chunks can be wrong.
+	- Need to embed leaf nodes, so we can lookup the top K embedding. The leaf nodes are embedded using the embedding model, and also indexed (vector store index) for auto-merging.
+	- For Auto-merging retrieval, in order to reduce token usage, we re-rank after merging. For example, retrieve top 12 -> merge -> top 10 -> merge -> top 6.
+- Need to tune number of levels, children, and chunk size to find the best hierarchical structures for a certain doc type (e.g. contracts, invoices)
