@@ -284,8 +284,15 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 
 ## Retrieval-Augmented Generation
 
+<img src="image/basic_rag_pipeline.png" width="500"/>
+
+<img src="image/triad.png" width="300"/>
+
+<img src="image/example_dashboard.png" width="400"/>
+
 - An evaluation library would have a feedback function that provides a score after viewing an LLM app's inputs, outputs, and intermediate results.
 - Sentence-window retrieval
+	- Apart from the top k chunks, also include the context around the chunks.
 	- Increase the window size may improve context relevance and therefore indirectly improve groundedness. Because when the retrieval step does not produce enough relevant context, the LLM in the completion step will tend to fill in those gaps by its pre-existing knowledge.
 	- But when the window size is too large, even if the context relevance is high, there could be a drop in the groundedness because the LLM can get overwhelmed with contexts that are too large and fall back on its pre-existing knowledge.
 - Auto-merging retrieval
