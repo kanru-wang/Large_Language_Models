@@ -17,6 +17,7 @@
   - [Proximal policy optimization (PPO)](https://github.com/kanru-wang/Large_Language_Models/tree/main#proximal-policy-optimization-ppo)
   - [Reward Hacking](https://github.com/kanru-wang/Large_Language_Models/tree/main#reward-hacking)
 - [Constitutional AI](https://github.com/kanru-wang/Large_Language_Models/tree/main#constitutional-ai)
+- [Retrieval-Augmented Generation](https://github.com/kanru-wang/Large_Language_Models/tree/main#retrieval-augmented-generation)
 
 <img src="image/image012.png" width="800"/>
 
@@ -284,8 +285,6 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 
 ## Retrieval-Augmented Generation
 
-<img src="image/basic_rag_pipeline.png" width="500"/>
-
 <img src="image/triad.png" width="300"/>
 
 <img src="image/example_dashboard.png" width="400"/>
@@ -319,3 +318,5 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 #### Post-Retrieval
 
 - Reranking: Following the bi-encoding and the top-k retrieval with vector similarity comparison, we need to re-rank (to calculate the query-chunk relevance). A cross-encoder can be used to re-rank. Each query-chunk pair is concatenated and passed to a cross-encoder for scoring its relevance. A cross-encoder model (e.g. BERT) is first fine-tuned by many such pairs. Can also use LLM itself to re-rank.
+
+<img src="image/cross_encoder_query_doc_relevancy_1.jpg" width="400"/>
