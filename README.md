@@ -290,13 +290,32 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 
 <img src="image/example_dashboard.png" width="400"/>
 
+#### Pre-Retrieval
+
+- From: https://python.langchain.com/docs/use_cases/query_analysis/
+- Query Decomposition: If a user input contains multiple distinct questions, decompose the input into separate queries that will each be executed independently.
+- Query Expansion: Use an LLM to suggest additional queries, for each query retrieve results from a vector DB and dedup, and send results to an LLM.
+- Hypothetical Document Embedding (HyDE): This is one way of Query Expansion. Use an LLM to suggest a hypothetical answer, combine the query and the answer, retrieve results from a vector DB, and send results to an LLM.
+- Query Routing: If we have multiple embedding sets and only a few are useful for a given user input, route the input to only retrieve results from the relevant embedding sets.
+- Step Back Prompting: Sometimes search quality and model generations can be tripped up by the specifics of a question. Retrieve results from a vector DB, use an LLM to answer a pre-defined guiding question with a latent answer, and then use the LLM to generate the final answer.
+- Query Structuring: If documents have multiple searchable/filterable attributes, we can infer from any raw user question which specific attributes should be searched/filtered over. For example, when a user input specific something about video publication date, that should become a filter on the publish_date attribute of each document.
+
+#### Retrieval
+
 - An evaluation library would have a feedback function that provides a score after viewing an LLM app's inputs, outputs, and intermediate results.
-- Sentence-window retrieval
+- Sentence-window retrieval (LlamaIndex)
 	- Apart from the top k chunks, also include the context around the chunks.
 	- Increase the window size may improve context relevance and therefore indirectly improve groundedness. Because when the retrieval step does not produce enough relevant context, the LLM in the completion step will tend to fill in those gaps by its pre-existing knowledge.
 	- But when the window size is too large, even if the context relevance is high, there could be a drop in the groundedness because the LLM can get overwhelmed with contexts that are too large and fall back on its pre-existing knowledge.
-- Auto-merging retrieval
+- Auto-merging retrieval (LlamaIndex)
 	- Auto-merging retrieval (1) Define a hierarchy of smaller chunks linking to bigger parent chunks. (2) During retrieval, if the set of smaller chunks linking to a parent chunk exceeds a threshold, then we retrieve the parent chunk instead to help ensure more coherent context. Otherwise, the ordering of small chunks can be wrong.
 	- Need to embed leaf nodes, so we can lookup the top K embedding. The leaf nodes are embedded using the embedding model, and also indexed (vector store index) for auto-merging.
-	- For Auto-merging retrieval, in order to reduce token usage, we re-rank after merging. For example, retrieve top 12 -> merge -> top 10 -> merge -> top 6.
+	- For Auto-merging retrieval, in order to reduce token usage, we re-rank after merging. For example, `retrieve top 12 -> merge -> top 10 -> merge -> top 6`.
+- Maximal Marginal Relevance
+	- Choose the `fetch_k` most similar responses from a vector DB
+ 	- But within those `fetch_k` responses choose the `k` most diverse responses for a more comprehensive final response
 - Need to tune number of levels, children, and chunk size to find the best hierarchical structures for a certain doc type (e.g. contracts, invoices)
+
+#### Post-Retrieval
+
+- Reranking: Following the bi-encoding and the top-k retrieval with vector similarity comparison, we need to re-rank (to calculate the query-chunk relevance). A cross-encoder can be used to re-rank. Each query-chunk pair is concatenated and passed to a cross-encoder for scoring its relevance. A cross-encoder model (e.g. BERT) is first fine-tuned by many such pairs. Can also use LLM itself to re-rank.
