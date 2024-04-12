@@ -157,6 +157,8 @@ The optimum rank is in a range of 4 to 32.
 
 <img src="image/image027.png" width="600"/>
 
+LoRA can be done to the encoder and / or decoder part of the transformer. In this illustration, it shows an encoder, although LLMs are decoder-only.
+
 Applying LoRA to just the self-attention layers is enough to fine-tune for a task and achieve performance gains. Can also use LoRA on other components like the feed-forward layers.
 
 <img src="image/image028.png" width="500"/>
@@ -298,6 +300,7 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 - Query Routing: If we have multiple embedding sets and only a few are useful for a given user input, route the input to only retrieve results from the relevant embedding sets.
 - Step Back Prompting: Sometimes search quality and model generations can be tripped up by the specifics of a question. Retrieve results from a vector DB, use an LLM to answer a pre-defined guiding question with a latent answer, and then use the LLM to generate the final answer.
 - Query Structuring: If documents have multiple searchable/filterable attributes, we can infer from any raw user question which specific attributes should be searched/filtered over. For example, when a user input specific something about video publication date, that should become a filter on the publish_date attribute of each document.
+- [Embedding Adaptor](train_RAG_query_embedding_adaptor_matrix.pdf)
 
 #### Retrieval
 
