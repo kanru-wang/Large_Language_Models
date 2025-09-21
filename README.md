@@ -206,7 +206,7 @@ Can only use Rouge scores to compare the capabilities of models if the scores we
 
 The LLM weights are updated iteratively to maximize the Reward, enabling the model to generate non-toxic completions.
 
-Use an additional model, known as the Reward Model, to classify the outputs of the LLM and evaluate the degree of alignment with human preferences. Specifically, start with a smaller number of human evaluated reward (pairwise comparison data) to train the Reward Model by traditional supervised learning methods (e.g. BERT). Once trained, use the Reward Model to assign a reward value (to the output of the LLM) which is used to update the weights off the LLM.
+Use an additional model, known as the Reward Model, to classify the outputs of the LLM and evaluate the degree of alignment with human preferences. Specifically, start with a smaller number of human evaluated reward (pairwise comparison data) to train the Reward Model by traditional supervised learning methods (e.g. BERT). Once trained, use the Reward Model to assign a reward value (to the output of the LLM) which is used to update the weights of the LLM.
 
 <img src="image/image035.png" width="450"/>
 
@@ -267,6 +267,21 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 <img src="image/image038.png" width="550"/>
 
 <img src="image/image045.png" width="600"/>
+
+### More on RLHF (Sep 2025)
+- First do SFT -> Train a Reward Model -> Further train LLM by RLHF
+- SFT Pros: fast. SFT Cons: overfitting and hard to align with subtle human preferences.
+- RLHF Pros: Align with humans. RLHF Cons: feedback collection, slow training, reward hacking
+- Reward value updates the weights of the LLM (in the RL way), so that the reward score increases over time.
+- LLM is the Policy model a.k.a. Actor; Value Function is the Critic.
+- The Value Function estimates the total future reward based on the current sequence of tokens. This is needed in estimating Policy Loss's Advantage Term.
+- The Value Loss is the difference between the actual future total reward and the Value Function's estimated total reward. When we minimize the Value Loss, the Value Function can estimate future rewards more accurately.
+- The Advantage Term estimates how much better or worse the current action (token) is, compared to all possible actions (tokens) at that state.
+- The Value Function is usually built on LLM's backbone, except its head produces a single scalar value for a given state. This scalar is the estimate of expected return from that state.
+- The model first generates a full response sequence for each prompt, so we can have the full reward and then can compute full PPO loss. After a batch of prompts & responses, attribute the total sequence-level reward to each token, to compute policy loss and value loss per token.
+- Usually a pairwise human preference dataset is prepared to train the reward model, although a pre-trained reward model can also be used.
+- PPO training function takes (query, response, reward_scalar_value) triplets as input.
+- When KL-divergence loss is added to prevent Reward Hacking, PPO Loss becomes [Policy Loss + Entropy Loss] + Value Loss + KL Loss
 
 ## Constitutional AI
 
