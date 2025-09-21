@@ -280,8 +280,10 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 - The Value Function is usually built on LLM's backbone, except its head produces a single scalar value for a given state. This scalar is the estimate of expected return from that state.
 - The model first generates a full response sequence for each prompt, so we can have the full reward and then can compute full PPO loss. After a batch of prompts & responses, attribute the total sequence-level reward to each token, to compute policy loss and value loss per token.
 - Usually a pairwise human preference dataset is prepared to train the reward model, although a pre-trained reward model can also be used.
-- PPO training function takes (query, response, reward_scalar_value) triplets as input.
+- PPO training function takes (batch_of_query_tokens, batch_of_response_tokens, batch_of_reward_scalar_value_from_reward_model) triplets as input.
 - When KL-divergence loss is added to prevent Reward Hacking, PPO Loss becomes [Policy Loss + Entropy Loss] + Value Loss + KL Loss
+
+<br>
 
 ## Constitutional AI
 
