@@ -268,7 +268,7 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 
 <img src="image/image045.png" width="600"/>
 
-### More on RLHF (Sep 2025)
+### More on RL PPO (Sep 2025)
 - First do SFT -> Train a Reward Model -> Further train LLM by RLHF
 - SFT Pros: fast. SFT Cons: overfitting and hard to align with subtle human preferences.
 - RLHF Pros: Align with humans. RLHF Cons: feedback collection, slow training, reward hacking
@@ -282,6 +282,40 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 - Usually a pairwise human preference dataset is prepared to train the reward model, although a pre-trained reward model can also be used.
 - PPO training function takes (batch_of_query_tokens, batch_of_response_tokens, batch_of_reward_scalar_value_from_reward_model) triplets as input.
 - When KL-divergence loss is added to prevent Reward Hacking, PPO Loss becomes [Policy Loss + Entropy Loss] + Value Loss + KL Loss
+
+<br>
+
+### DPO (Direct Preference Optimization)
+
+- DPO trains the LLM to match the preference data (desired ordering), with a KL regularization.
+- DPO does not require a reward model.
+- DPO tries to maximize reward for the positive sample and minimize reward for the negative sample.
+- If DPO is offline / off-policy, it would rely on a fixed preference dataset and does not actively generate new trajectories from the policy during training.
+- Because DPO does not directly “see” where the policy might go (no exploration), DPO is less effective for tasks of complex reward.
+- Curate DPO training data by (1) Generate reponses from the original model as negaive responses, and make corrections so that they are positive, or (2) Use the original model to generate multiple responses, and pick and best and worst reponses as positive and negative, based on human or reward functions.
+
+<br>
+
+### GRPO (Group Relative Policy Optimization)
+
+- It does not have a Value Model. For a given prompt, the current LLM generates a group of candidate responses; a reward model assigns a reward to each response, and advantage is computed by comparing each response’s reward relative to the group mean - thus removing the need for a separately trained value function.
+- If a particular response's reward is higher than the average reward, it will receive a positive advantage, and gradient pushes up its probability under the policy; vice Versa.
+- The rest is the same as PPO.
+- Because there is no Value Model, GRPO is usually more memory- and compute-efficient than PPO, but requires more samples than PPO.
+- PPO uses an actual value model to assign credit for each token, so each token has a different advantage value. In GRPO, each token has the same advantage.
+
+<br>
+
+### Post-training of LLMs (course on deeplearning.ai)
+
+- Pre-training usually needs 2T tokens. Continual pre-training needs at least 1B tokens (about 5000 domain books).
+- SFT and DPO need at least 1k tokens. Online RF needs at least 1k prompt-response-reward triplets.
+- RL can improve model capabilities without degrading performance in unseen tasks, while SFT may degrade. 
+- Consider using a very good LLM to generate training data for SFT. The quality and diversity of the dataset is much more important than quantity.
+- On-policy (online) RL collects freshly generated responses from the current LLM and their rewards. updates its weights, and explores new responses as it learns.
+- Off-policy (offline) RL reuses previously collected prompt-response(-reward) tuples (triplets).
+- Reward Function can be (1) Trained Reward Model, or (2) Verifiable Reward (math calculation and code unit testing).
+- Direct vs indirect preference modeling — whether the algorithm directly optimizes a preference loss (e.g. pairwise comparisons) or uses a reward model and then applies RL to maximize expected reward.
 
 <br>
 
