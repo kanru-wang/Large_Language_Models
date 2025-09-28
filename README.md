@@ -16,6 +16,8 @@
   - [Prepare labeled data for training](https://github.com/kanru-wang/Large_Language_Models/tree/main#prepare-labeled-data-for-training)
   - [Proximal policy optimization (PPO)](https://github.com/kanru-wang/Large_Language_Models/tree/main#proximal-policy-optimization-ppo)
   - [Reward Hacking](https://github.com/kanru-wang/Large_Language_Models/tree/main#reward-hacking)
+  - [Direct Preference Optimization (DPO)](https://github.com/kanru-wang/Large_Language_Models/tree/main#direct-preference-optimization-dpo)
+  - [Group Relative Policy Optimization (GRPO)](https://github.com/kanru-wang/Large_Language_Models/tree/main#group-relative-policy-optimization-grpo)
 - [Constitutional AI](https://github.com/kanru-wang/Large_Language_Models/tree/main#constitutional-ai)
 - [Retrieval-Augmented Generation](https://github.com/kanru-wang/Large_Language_Models/tree/main#retrieval-augmented-generation)
 
@@ -285,7 +287,7 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 
 <br>
 
-### DPO (Direct Preference Optimization)
+### Direct Preference Optimization (DPO)
 
 - DPO trains the LLM to match the preference data (desired ordering), with a KL regularization.
 - DPO does not require a reward model.
@@ -296,7 +298,7 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 
 <br>
 
-### GRPO (Group Relative Policy Optimization)
+### Group Relative Policy Optimization (GRPO)
 
 - It does not have a Value Model. For a given prompt, the current LLM generates a group of candidate responses; a reward model assigns a reward to each response, and advantage is computed by comparing each response’s reward relative to the group mean - thus removing the need for a separately trained value function.
 - If a particular response's reward is higher than the average reward, it will receive a positive advantage, and gradient pushes up its probability under the policy; vice Versa.
