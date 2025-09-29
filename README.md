@@ -141,8 +141,7 @@ DDP requires that the model weights, and additional parameters, gradients, and o
 
 ## Pre-training LLMs
 
-(course on deeplearning.ai)
-
+- (course on deeplearning.ai)
 - Pre-training (or continual pre-training) is needed when the output need to be in a new language (programming language, Chinese).
 - Need to clean data to avoid duplicated text or meaning, multi-language, typo, toxic words, privacy.
 - Turn custom text files into HuggingFace dataset format, and combine it to a main HuggingFace pre-training dataset, as the new training data
