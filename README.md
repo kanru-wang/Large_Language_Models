@@ -119,6 +119,11 @@ DDP requires that the model weights, and additional parameters, gradients, and o
 - When using FSDP, distribute the data across multiple GPUs, but shard the model parameters, gradients, and optimizer states across the GPU nodes using one of the 3 ZeRO strategies.
 - FSDP requires collecting model states (required for processing each batch) from all of the GPUs before the forward and backward pass. Each GPU requests data from the other GPUs on-demand, to materialize the sharded data into unsharded data for the duration of the operation. After the operation, release the unsharded non-local data back to the other GPUs as original sharded data. Can also choose to keep it for future operations, for example during backward pass, but this requires more GPU RAM again (a typical performance vs memory trade-off).
 - In the final step after the backward pass, FSDP synchronizes the gradients across the GPUs in the same way they were for DDP.
+- TensorFlow's Mirrored Strategy = PyTorch's Distributed Data Parallel
+- FSDP lies between Data Parallelism and Model Parallelism: it retains the Data-Parallel paradigm (each GPU handles a slice of the batch and runs the same graph), but splits model state (model parameters, gradients, optimizer state) to reduce memory cost.
+- In Model Parallelism, parts of the forward/backward computation run across devices for a microbatch. In FSDP, each GPU still executes the full forward/backward graph for its microbatch. Logically FSDP behaves like fully replicated model training. The parallelism is at Data-Parallel level, with sharding of state (model parameters, gradients, optimizer state) underlying it. FSDP = data-parallel + state-sharding
+- In FSDP forward pass, before computing a layer, the required parameter shards may be gathered across all ranks, so each rank temporarily has access to the full parameter (just enough to compute). In backprop, again the parameter shards are gathered if needed (for computing gradients). Local gradients are computed; then gradient shards are summed across ranks and redistributed such that each rank ends up with only the gradient shard it needs.
+- FSDP's optimizer state is sharded and the update is local.
 
 <img src="image/image014.png" width="650"/>
 
@@ -130,6 +135,21 @@ DDP requires that the model weights, and additional parameters, gradients, and o
 - A compute optimal Chinchilla model outperforms non compute optimal models such as GPT-3 on a large range of downstream evaluation tasks.
 
 <img src="image/image011.png" width="400"/>
+
+<br>
+
+## Pre-training LLMs (course on deeplearning.ai)
+
+- Pre-training (or continual pre-training) is needed when the output need to be in a new language (programming language, Chinese).
+- Need to clean data to avoid duplicated text or meaning, multi-language, typo, toxic words, privacy.
+- Turn custom text files into HuggingFace dataset format, and combine it to a main HuggingFace pre-training dataset, as the new training data
+- Concat all token input ids into a large list, and pack (reshape) tokens into the maximum sequence length to improve training efficiency. To avoid incoherence & “cross-document contamination”, (1) length-aware packing to reduce fragmentation, (2) packing semantically related documents together, (3) use overlapping windows when splitting.
+- Downscaling is removing middle decoder layers to make a smaller model, and then start the pre-training.
+- Depth upscaling: For example a model has 4 decoder layers, we create a larger model with layers [1, 2, 3, 2, 3, 4], and then start the pre-training.
+- Often train one epoch only
+- Evaluate by taking benchmark exams, which can be easily done with LLM evaluation harness packages.
+
+<br>
 
 ## Fine-tuning (Instruction Fine-tuning)
 
