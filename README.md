@@ -7,6 +7,7 @@
   - [Distributed Data Parallel (DDP)](https://github.com/kanru-wang/Large_Language_Models/tree/main#distributed-data-parallel-ddp)
   - [Model Sharding](https://github.com/kanru-wang/Large_Language_Models/tree/main#model-sharding)
 - [Optimal Model Size and Training Data Size Balance](https://github.com/kanru-wang/Large_Language_Models/tree/main#optimal-model-size-and-training-data-size-balance)
+- [Pre-training LLMs](https://github.com/kanru-wang/Large_Language_Models/tree/main#pre-training-llms)
 - [Fine-tuning (Instruction Fine-tuning)](https://github.com/kanru-wang/Large_Language_Models/tree/main#fine-tuning-instruction-fine-tuning)
 - [Parameter Efficient Fine-Tuning (PEFT)](https://github.com/kanru-wang/Large_Language_Models/tree/main#parameter-efficient-fine-tuning-peft)
   - [Low-Rank Adaptation of Large Language Models (LoRA)](https://github.com/kanru-wang/Large_Language_Models/tree/main#low-rank-adaptation-of-large-language-models-lora)
@@ -138,7 +139,9 @@ DDP requires that the model weights, and additional parameters, gradients, and o
 
 <br>
 
-## Pre-training LLMs (course on deeplearning.ai)
+## Pre-training LLMs
+
+(course on deeplearning.ai)
 
 - Pre-training (or continual pre-training) is needed when the output need to be in a new language (programming language, Chinese).
 - Need to clean data to avoid duplicated text or meaning, multi-language, typo, toxic words, privacy.
