@@ -312,7 +312,7 @@ While the policy loss moves the model towards alignment goal, entropy allows the
 ### Direct Preference Optimization (DPO)
 
 - DPO trains the LLM to match the preference data (desired ordering), with a KL regularization.
-- DPO does not require a reward model.
+- DPO does not require a reward model or a value function.
 - DPO tries to maximize reward for the positive sample and minimize reward for the negative sample.
 - If DPO is offline / off-policy, it would rely on a fixed preference dataset and does not actively generate new trajectories from the policy during training.
 - Because DPO does not directly “see” where the policy might go (no exploration), DPO is less effective for tasks of complex reward.
